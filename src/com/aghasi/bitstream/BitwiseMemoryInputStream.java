@@ -265,7 +265,7 @@ public class BitwiseMemoryInputStream {
     /**
      * returns count of remaining buffer bytes to read
      */
-    public int getRemainingBitCount() {
-        return _capacity - _head;
+    public int getRemainingBytes() {
+        return _capacity - (_head/8) + 1;
     }
 }
