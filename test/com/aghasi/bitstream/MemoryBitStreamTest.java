@@ -1,18 +1,19 @@
 package com.aghasi.bitstream;
 
 import junit.framework.TestCase;
+
 import java.io.UnsupportedEncodingException;
 
 
 public class MemoryBitStreamTest extends TestCase {
 
-    private OutputMemoryBitStream _outStream;
-    private InputMemoryBitStream _inStream;
+    private BitwiseMemoryOutputStream _outStream;
+    private BitwiseMemoryInputStream _inStream;
 
     @Override
     protected void setUp() throws Exception {
-                
-        _outStream = new OutputMemoryBitStream();
+
+        _outStream = new BitwiseMemoryOutputStream();
         super.setUp();
     }
 
@@ -31,7 +32,7 @@ public class MemoryBitStreamTest extends TestCase {
         int bitCount = getRequiredBitsCount(Integer.MAX_VALUE);
         _outStream.writeInt(Integer.MAX_VALUE, bitCount);
 
-        _inStream = new InputMemoryBitStream(_outStream.getBuffer(), _outStream.getBuffer().length * 8);
+        _inStream = new BitwiseMemoryInputStream(_outStream.getBuffer(), _outStream.getBuffer().length * 8);
 
         for (int i = 0; i < 10000; i++) {
             assertEquals(i, _inStream.readInt(getRequiredBitsCount(i)));
@@ -42,18 +43,16 @@ public class MemoryBitStreamTest extends TestCase {
     public void testReadAndWriteFloat() {
 
         for (float i = 0.123f; i < 1000; i += 1.1) {
-            int bitCount = getRequiredBitsCount(Float.floatToIntBits(i));
-            _outStream.writeFloat(i, bitCount);
+            _outStream.writeFloat(i);
         }
-        int bitCount = getRequiredBitsCount(Float.floatToIntBits(Float.MAX_VALUE));
-        _outStream.writeFloat(Float.MAX_VALUE, bitCount);
+        _outStream.writeFloat(Float.MAX_VALUE);
 
-        _inStream = new InputMemoryBitStream(_outStream.getBuffer(), _outStream.getBuffer().length * 8);
+        _inStream = new BitwiseMemoryInputStream(_outStream.getBuffer(), _outStream.getBuffer().length * 8);
 
         for (float i = 0.123f; i < 1000; i += 1.1) {
-            assertEquals(i, _inStream.readFloat(getRequiredBitsCount(Float.floatToIntBits(i))));
+            assertEquals(i, _inStream.readFloat());
         }
-        assertEquals(Float.MAX_VALUE, _inStream.readFloat(getRequiredBitsCount(Float.floatToIntBits(Float.MAX_VALUE))));
+        assertEquals(Float.MAX_VALUE, _inStream.readFloat());
     }
 
     public void testReadAndWriteLong() {
@@ -65,7 +64,7 @@ public class MemoryBitStreamTest extends TestCase {
         int bitCount = getLongRequiredBitsCount(Long.MAX_VALUE);
         _outStream.writeLong(Long.MAX_VALUE, bitCount);
 
-        _inStream = new InputMemoryBitStream(_outStream.getBuffer(), _outStream.getBuffer().length * 8);
+        _inStream = new BitwiseMemoryInputStream(_outStream.getBuffer(), _outStream.getBuffer().length * 8);
 
         for (long i = 0; i < 10000; i++) {
             assertEquals(i, _inStream.readLong(getLongRequiredBitsCount(i)));
@@ -76,20 +75,18 @@ public class MemoryBitStreamTest extends TestCase {
     public void testReadAndWriteDouble() {
 
         for (double i = 321.123f; i < 1000; i += 1.1) {
-            int bitCount = getLongRequiredBitsCount(Double.doubleToLongBits(i));
-            _outStream.writeDouble(i, bitCount);
+            _outStream.writeDouble(i);
         }
-        int bitCount = getLongRequiredBitsCount(Double.doubleToLongBits(Double.MAX_VALUE));
-        _outStream.writeDouble(Double.MAX_VALUE, bitCount);
+        _outStream.writeDouble(Double.MAX_VALUE);
 
-        _inStream = new InputMemoryBitStream(_outStream.getBuffer(), _outStream.getBuffer().length * 8);
+        _inStream = new BitwiseMemoryInputStream(_outStream.getBuffer(), _outStream.getBuffer().length * 8);
 
         for (double i = 321.123f; i < 1000; i += 1.1) {
-            assertEquals(i, _inStream.readDouble(getLongRequiredBitsCount(Double.doubleToLongBits(i))));
+            assertEquals(i, _inStream.readDouble());
         }
-        assertEquals(Double.MAX_VALUE, _inStream.readDouble(getLongRequiredBitsCount(Double.doubleToLongBits(Double.MAX_VALUE))));
+        assertEquals(Double.MAX_VALUE, _inStream.readDouble());
     }
-    
+
     public void testReadAndWriteSignedInt() {
 
         for (int i = -5000; i < 5000; i++) {
@@ -99,7 +96,7 @@ public class MemoryBitStreamTest extends TestCase {
         int bitCount = getRequiredBitsCount(Integer.MAX_VALUE);
         _outStream.writeSigned(Integer.MAX_VALUE, bitCount);
 
-        _inStream = new InputMemoryBitStream(_outStream.getBuffer(), _outStream.getBuffer().length * 8);
+        _inStream = new BitwiseMemoryInputStream(_outStream.getBuffer(), _outStream.getBuffer().length * 8);
 
         for (int i = -5000; i < 5000; i++) {
             assertEquals(i, _inStream.readSignedInt(getRequiredBitsCount(i)));
@@ -112,7 +109,7 @@ public class MemoryBitStreamTest extends TestCase {
 
         try {
             _outStream.writeString("test text, hello world!");
-            _inStream = new InputMemoryBitStream(_outStream.getBuffer(), _outStream.getBuffer().length * 8);
+            _inStream = new BitwiseMemoryInputStream(_outStream.getBuffer(), _outStream.getBuffer().length * 8);
             assertEquals("test text, hello world!", _inStream.readString());
         } catch (UnsupportedEncodingException e) {
             fail("UnsupportedEncodingException for string");
@@ -128,10 +125,10 @@ public class MemoryBitStreamTest extends TestCase {
             _outStream.writeString("مسعود تست");        // test for utf-8 chars
             _outStream.writeString("مسعود تست e-hfu");
             _outStream.writeSigned(-48, 32);
-            _outStream.writeByte((byte)0xff);
-            _outStream.writeFloat(1.23f, 32);
+            _outStream.writeByte((byte) 0xff);
+            _outStream.writeFloat(1.23f);
 
-            _inStream = new InputMemoryBitStream(_outStream.getBuffer(), _outStream.getBuffer().length * 8);
+            _inStream = new BitwiseMemoryInputStream(_outStream.getBuffer(), _outStream.getBuffer().length * 8);
 
             assertEquals(true, _inStream.readBool());
             assertEquals(3249, _inStream.readInt(32));
@@ -139,8 +136,8 @@ public class MemoryBitStreamTest extends TestCase {
             assertEquals("مسعود تست", _inStream.readString());
             assertEquals("مسعود تست e-hfu", _inStream.readString());
             assertEquals(-48, _inStream.readSignedInt(32));
-            assertEquals((byte)0xff, _inStream.readByte());
-            assertEquals(1.23f, _inStream.readFloat(32));
+            assertEquals((byte) 0xff, _inStream.readByte());
+            assertEquals(1.23f, _inStream.readFloat());
         } catch (UnsupportedEncodingException e) {
             fail("UnsupportedEncodingException for string");
         }
@@ -148,7 +145,7 @@ public class MemoryBitStreamTest extends TestCase {
 
     private int getRequiredBitsCount(int num) {
 
-        if(num < 0) {
+        if (num < 0) {
             num *= -1;
         }
         int bitCount = 1;
@@ -161,7 +158,7 @@ public class MemoryBitStreamTest extends TestCase {
 
     private int getLongRequiredBitsCount(long num) {
 
-        if(num < 0) {
+        if (num < 0) {
             num *= -1;
         }
         int bitCount = 1;
